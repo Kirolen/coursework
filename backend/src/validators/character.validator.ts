@@ -30,9 +30,7 @@ const detailsSchema = z
   })
   .optional();
 
-const additionalAttributesSchema = z
-  .record(z.string(), z.string())
-  .optional();
+const additionalAttributesSchema = z.record(z.string(), z.string()).optional();
 
 export const createCharacterSchema = z.object({
   userId: objectIdSchema,
@@ -83,5 +81,13 @@ export const updateCharacterSchema = z
     }
   );
 
+export const createCharacterFromPromptSchema = z.object({
+  userId: objectIdSchema,
+  prompt: z.string().trim().min(10, "prompt must contain at least 10 characters"),
+});
+
 export type CreateCharacterDto = z.infer<typeof createCharacterSchema>;
 export type UpdateCharacterDto = z.infer<typeof updateCharacterSchema>;
+export type CreateCharacterFromPromptDto = z.infer<
+  typeof createCharacterFromPromptSchema
+>;
