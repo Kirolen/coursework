@@ -80,29 +80,45 @@ export const createCharacter = async (
   return character;
 };
 
-export const getAllCharacters = async (): Promise<Character[]> => {
-  return CharacterModel.find().sort({ createdAt: -1 });
+export const getAllCharacters = async (
+  userId: string
+): Promise<Character[]> => {
+  if (!Types.ObjectId.isValid(userId)) {
+    return [];
+  }
+
+  return CharacterModel.find({
+    userId: new Types.ObjectId(userId),
+  }).sort({ createdAt: -1 });
 };
 
 export const getCharacterById = async (
-  id: string
+  id: string,
+  userId: string
 ): Promise<Character | null> => {
-  if (!Types.ObjectId.isValid(id)) {
+  if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
     return null;
   }
 
-  return CharacterModel.findById(id);
+  return CharacterModel.findOne({
+    _id: new Types.ObjectId(id),
+    userId: new Types.ObjectId(userId),
+  });
 };
 
 export const updateCharacterById = async (
   id: string,
+  userId: string,
   data: UpdateCharacterInput
 ): Promise<Character | null> => {
-  if (!Types.ObjectId.isValid(id)) {
+  if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
     return null;
   }
 
-  const existingCharacter = await CharacterModel.findById(id);
+  const existingCharacter = await CharacterModel.findOne({
+    _id: new Types.ObjectId(id),
+    userId: new Types.ObjectId(userId),
+  });
 
   if (!existingCharacter) {
     return null;
@@ -167,18 +183,21 @@ export const updateCharacterById = async (
   existingCharacter.status = calculateCharacterStatus(existingCharacter);
 
   await existingCharacter.save();
-  
   await validateCharacter(existingCharacter);
 
   return existingCharacter;
 };
 
 export const deleteCharacterById = async (
-  id: string
+  id: string,
+  userId: string
 ): Promise<Character | null> => {
-  if (!Types.ObjectId.isValid(id)) {
+  if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
     return null;
   }
 
-  return CharacterModel.findByIdAndDelete(id);
+  return CharacterModel.findOneAndDelete({
+    _id: new Types.ObjectId(id),
+    userId: new Types.ObjectId(userId),
+  });
 };

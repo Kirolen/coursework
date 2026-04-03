@@ -9,6 +9,7 @@ import {
   semanticValidateCharacterController,
 } from "../controllers/character.controller";
 import { validateBody } from "../middlewares/validate.middleware";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import {
   createCharacterSchema,
   createCharacterFromPromptSchema,
@@ -16,6 +17,8 @@ import {
 } from "../validators/character.validator";
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.post("/", validateBody(createCharacterSchema), createCharacterController);
 router.post(

@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-const objectIdSchema = z.string().min(1, "userId is required");
-
 const inputModeSchema = z.enum(["builder", "prompt"]);
 
 const coreSchema = z.object({
@@ -33,7 +31,6 @@ const detailsSchema = z
 const additionalAttributesSchema = z.record(z.string(), z.string()).optional();
 
 export const createCharacterSchema = z.object({
-  userId: objectIdSchema,
   inputMode: inputModeSchema,
   rawPrompt: z.string().trim().min(1).nullable().optional(),
   core: coreSchema,
@@ -82,7 +79,6 @@ export const updateCharacterSchema = z
   );
 
 export const createCharacterFromPromptSchema = z.object({
-  userId: objectIdSchema,
   prompt: z.string().trim().min(10, "prompt must contain at least 10 characters"),
 });
 

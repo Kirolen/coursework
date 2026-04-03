@@ -22,12 +22,18 @@ const getCompletenessStatus = (
   return "partial";
 };
 
-export const runSemanticValidationByCharacterId = async (id: string) => {
-  if (!Types.ObjectId.isValid(id)) {
+export const runSemanticValidationByCharacterId = async (
+  id: string,
+  userId: string
+) => {
+  if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
     return null;
   }
 
-  const character = await CharacterModel.findById(id);
+  const character = await CharacterModel.findOne({
+    _id: new Types.ObjectId(id),
+    userId: new Types.ObjectId(userId),
+  });
 
   if (!character) {
     return null;

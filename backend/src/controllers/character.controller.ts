@@ -14,7 +14,17 @@ export const createCharacterController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const character = await createCharacter(req.body);
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const character = await createCharacter({
+      ...req.body,
+      userId: req.user.id,
+    });
 
     res.status(201).json(character);
   } catch (error) {
@@ -30,23 +40,41 @@ export const createCharacterFromPromptController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const character = await createCharacterFromPrompt(req.body);
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const character = await createCharacterFromPrompt({
+      userId: req.user.id,
+      prompt: req.body.prompt,
+    });
 
     res.status(201).json(character);
   } catch (error) {
     console.error("Create character from prompt error:", error);
     res.status(500).json({
       message: "Failed to create character from prompt",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
 
 export const getAllCharactersController = async (
-  _req: Request,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const characters = await getAllCharacters();
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const characters = await getAllCharacters(req.user.id);
 
     res.status(200).json(characters);
   } catch (error) {
@@ -62,8 +90,15 @@ export const getCharacterByIdController = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
     const id = String(req.params.id);
-    const character = await getCharacterById(id);
+    const character = await getCharacterById(id, req.user.id);
 
     if (!character) {
       res.status(404).json({
@@ -86,8 +121,15 @@ export const updateCharacterController = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
     const id = String(req.params.id);
-    const updatedCharacter = await updateCharacterById(id, req.body);
+    const updatedCharacter = await updateCharacterById(id, req.user.id, req.body);
 
     if (!updatedCharacter) {
       res.status(404).json({
@@ -110,8 +152,15 @@ export const deleteCharacterController = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
     const id = String(req.params.id);
-    const deletedCharacter = await deleteCharacterById(id);
+    const deletedCharacter = await deleteCharacterById(id, req.user.id);
 
     if (!deletedCharacter) {
       res.status(404).json({
@@ -137,8 +186,15 @@ export const semanticValidateCharacterController = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+
     const id = String(req.params.id);
-    const validation = await runSemanticValidationByCharacterId(id);
+    const validation = await runSemanticValidationByCharacterId(id, req.user.id);
 
     if (!validation) {
       res.status(404).json({
