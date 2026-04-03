@@ -308,3 +308,27 @@ export const generateSemanticValidation = async (
 
   return extractSemanticValidationFromResponse(outputText);
 };
+
+export const generateCharacterImage = async (
+  prompt: string
+): Promise<string> => {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY is not defined");
+  }
+
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
+
+  const result = await client.images.generate({
+    model,
+    prompt,
+    size: "1024x1024",
+  });
+
+  const imageBase64 = result.data?.[0]?.b64_json;
+
+  if (!imageBase64) {
+    throw new Error("OpenAI image generation returned empty result");
+  }
+
+  return imageBase64;
+};

@@ -7,6 +7,10 @@ import {
   updateCharacterController,
   deleteCharacterController,
   semanticValidateCharacterController,
+  getCharacterValidationsController,
+  getLatestCharacterValidationController,
+  generateCharacterImageController,
+  getCharacterImagesController,
 } from "../controllers/character.controller";
 import { validateBody } from "../middlewares/validate.middleware";
 import { authMiddleware } from "../middlewares/auth.middleware";
@@ -29,8 +33,13 @@ router.post(
 
 router.get("/", getAllCharactersController);
 router.get("/:id", getCharacterByIdController);
+router.get("/:id/validations", getCharacterValidationsController);
+router.get("/:id/validation/latest", getLatestCharacterValidationController);
+router.get("/:id/images", getCharacterImagesController);
+
 router.patch("/:id", validateBody(updateCharacterSchema), updateCharacterController);
 router.delete("/:id", deleteCharacterController);
 router.post("/:id/semantic-validate", semanticValidateCharacterController);
+router.post("/:id/generate-image", generateCharacterImageController);
 
 export default router;

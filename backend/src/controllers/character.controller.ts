@@ -8,17 +8,21 @@ import {
 } from "../services/character.service";
 import { createCharacterFromPrompt } from "../services/prompt-character.service";
 import { runSemanticValidationByCharacterId } from "../services/semantic-validation.service";
+import {
+  getCharacterValidations,
+  getLatestCharacterValidation,
+} from "../services/validation.service";
+import {
+  generateImageForCharacter,
+  getImagesForCharacter,
+} from "../services/generated-image.service";
+import { asyncHandler } from "../utils/async-handler";
+import { AppError } from "../utils/app-error";
 
-export const createCharacterController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const createCharacterController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const character = await createCharacter({
@@ -27,24 +31,13 @@ export const createCharacterController = async (
     });
 
     res.status(201).json(character);
-  } catch (error) {
-    console.error("Create character error:", error);
-    res.status(500).json({
-      message: "Failed to create character",
-    });
   }
-};
+);
 
-export const createCharacterFromPromptController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const createCharacterFromPromptController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const character = await createCharacterFromPrompt({
@@ -53,162 +46,159 @@ export const createCharacterFromPromptController = async (
     });
 
     res.status(201).json(character);
-  } catch (error) {
-    console.error("Create character from prompt error:", error);
-    res.status(500).json({
-      message: "Failed to create character from prompt",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
   }
-};
+);
 
-export const getAllCharactersController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getAllCharactersController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const characters = await getAllCharacters(req.user.id);
-
     res.status(200).json(characters);
-  } catch (error) {
-    console.error("Get all characters error:", error);
-    res.status(500).json({
-      message: "Failed to fetch characters",
-    });
   }
-};
+);
 
-export const getCharacterByIdController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getCharacterByIdController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const id = String(req.params.id);
     const character = await getCharacterById(id, req.user.id);
 
     if (!character) {
-      res.status(404).json({
-        message: "Character not found",
-      });
-      return;
+      throw new AppError("Character not found", 404);
     }
 
     res.status(200).json(character);
-  } catch (error) {
-    console.error("Get character by id error:", error);
-    res.status(500).json({
-      message: "Failed to fetch character",
-    });
   }
-};
+);
 
-export const updateCharacterController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const updateCharacterController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const id = String(req.params.id);
     const updatedCharacter = await updateCharacterById(id, req.user.id, req.body);
 
     if (!updatedCharacter) {
-      res.status(404).json({
-        message: "Character not found",
-      });
-      return;
+      throw new AppError("Character not found", 404);
     }
 
     res.status(200).json(updatedCharacter);
-  } catch (error) {
-    console.error("Update character error:", error);
-    res.status(500).json({
-      message: "Failed to update character",
-    });
   }
-};
+);
 
-export const deleteCharacterController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const deleteCharacterController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const id = String(req.params.id);
     const deletedCharacter = await deleteCharacterById(id, req.user.id);
 
     if (!deletedCharacter) {
-      res.status(404).json({
-        message: "Character not found",
-      });
-      return;
+      throw new AppError("Character not found", 404);
     }
 
     res.status(200).json({
       message: "Character deleted successfully",
       character: deletedCharacter,
     });
-  } catch (error) {
-    console.error("Delete character error:", error);
-    res.status(500).json({
-      message: "Failed to delete character",
-    });
   }
-};
+);
 
-export const semanticValidateCharacterController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const semanticValidateCharacterController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const id = String(req.params.id);
     const validation = await runSemanticValidationByCharacterId(id, req.user.id);
 
     if (!validation) {
-      res.status(404).json({
-        message: "Character not found",
-      });
-      return;
+      throw new AppError("Character not found", 404);
     }
 
     res.status(201).json(validation);
-  } catch (error) {
-    console.error("Semantic validation error:", error);
-    res.status(500).json({
-      message: "Failed to run semantic validation",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
   }
-};
+);
+
+export const getCharacterValidationsController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const id = String(req.params.id);
+    const validations = await getCharacterValidations(id, req.user.id);
+
+    if (!validations) {
+      throw new AppError("Character not found", 404);
+    }
+
+    res.status(200).json(validations);
+  }
+);
+
+export const getLatestCharacterValidationController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const id = String(req.params.id);
+    const validation = await getLatestCharacterValidation(id, req.user.id);
+
+    if (validation === null) {
+      throw new AppError("Character not found", 404);
+    }
+
+    if (!validation) {
+      throw new AppError("Validation not found", 404);
+    }
+
+    res.status(200).json(validation);
+  }
+);
+
+export const generateCharacterImageController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const id = String(req.params.id);
+    const image = await generateImageForCharacter(id, req.user.id);
+
+    if (!image) {
+      throw new AppError("Character not found", 404);
+    }
+
+    res.status(201).json(image);
+  }
+);
+
+export const getCharacterImagesController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const id = String(req.params.id);
+    const images = await getImagesForCharacter(id, req.user.id);
+
+    if (!images) {
+      throw new AppError("Character not found", 404);
+    }
+
+    res.status(200).json(images);
+  }
+);

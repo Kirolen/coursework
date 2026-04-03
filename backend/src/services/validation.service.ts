@@ -1,4 +1,6 @@
+import { Types } from "mongoose";
 import { Character } from "../models/character.model";
+import { CharacterModel } from "../models/character.model";
 import { CharacterValidationModel } from "../models/characterValidation.model";
 import { getMissingCharacterFields } from "../utils/character-status";
 
@@ -70,4 +72,48 @@ export const validateCharacter = async (character: Character) => {
   });
 
   return validation;
+};
+
+export const getCharacterValidations = async (
+  characterId: string,
+  userId: string
+) => {
+  if (!Types.ObjectId.isValid(characterId) || !Types.ObjectId.isValid(userId)) {
+    return null;
+  }
+
+  const character = await CharacterModel.findOne({
+    _id: new Types.ObjectId(characterId),
+    userId: new Types.ObjectId(userId),
+  });
+
+  if (!character) {
+    return null;
+  }
+
+  return CharacterValidationModel.find({
+    characterId: new Types.ObjectId(characterId),
+  }).sort({ createdAt: -1 });
+};
+
+export const getLatestCharacterValidation = async (
+  characterId: string,
+  userId: string
+) => {
+  if (!Types.ObjectId.isValid(characterId) || !Types.ObjectId.isValid(userId)) {
+    return null;
+  }
+
+  const character = await CharacterModel.findOne({
+    _id: new Types.ObjectId(characterId),
+    userId: new Types.ObjectId(userId),
+  });
+
+  if (!character) {
+    return null;
+  }
+
+  return CharacterValidationModel.findOne({
+    characterId: new Types.ObjectId(characterId),
+  }).sort({ createdAt: -1 });
 };

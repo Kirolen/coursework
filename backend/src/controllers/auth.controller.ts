@@ -4,68 +4,35 @@ import {
   loginUser,
   getCurrentUserById,
 } from "../services/auth.service";
+import { asyncHandler } from "../utils/async-handler";
+import { AppError } from "../utils/app-error";
 
-export const registerController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const registerController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const result = await registerUser(req.body);
-
     res.status(201).json(result);
-  } catch (error) {
-    console.error("Register error:", error);
-
-    res.status(400).json({
-      message: error instanceof Error ? error.message : "Registration failed",
-    });
   }
-};
+);
 
-export const loginController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const loginController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const result = await loginUser(req.body);
-
     res.status(200).json(result);
-  } catch (error) {
-    console.error("Login error:", error);
-
-    res.status(400).json({
-      message: error instanceof Error ? error.message : "Login failed",
-    });
   }
-};
+);
 
-export const getMeController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getMeController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({
-        message: "Unauthorized",
-      });
-      return;
+      throw new AppError("Unauthorized", 401);
     }
 
     const user = await getCurrentUserById(req.user.id);
 
     if (!user) {
-      res.status(404).json({
-        message: "User not found",
-      });
-      return;
+      throw new AppError("User not found", 404);
     }
 
     res.status(200).json(user);
-  } catch (error) {
-    console.error("Get me error:", error);
-
-    res.status(500).json({
-      message: "Failed to get current user",
-    });
   }
-};
+);
