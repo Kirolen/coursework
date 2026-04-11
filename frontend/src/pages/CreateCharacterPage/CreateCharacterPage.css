@@ -1,0 +1,15 @@
+.create-character-page {
+  display: grid;
+  gap: 16px;
+}
+
+.create-character-page__back {
+  display: flex;
+  align-items: center;
+}
+
+.create-character-page__back-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}

@@ -1,0 +1,15 @@
+.create-from-prompt-page {
+  display: grid;
+  gap: 16px;
+}
+
+.create-from-prompt-page__back {
+  display: flex;
+  align-items: center;
+}
+
+.create-from-prompt-page__back-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}

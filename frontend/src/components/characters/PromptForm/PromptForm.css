@@ -1,0 +1,123 @@
+.prompt-form {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.prompt-form__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prompt-form__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.prompt-form__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.prompt-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prompt-form__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-soft);
+}
+
+.prompt-form__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  resize: vertical;
+  min-height: 220px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.prompt-form__textarea::placeholder {
+  color: var(--color-muted);
+}
+
+.prompt-form__textarea:hover {
+  border-color: var(--color-primary);
+}
+
+.prompt-form__textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  outline: none;
+}
+
+.prompt-form__helper {
+  font-size: 13px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.prompt-form__error {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  line-height: 1.5;
+}
+
+.prompt-form__submit {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.prompt-form__submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.prompt-form__submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.prompt-form__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .prompt-form {
+    padding: 20px;
+  }
+
+  .prompt-form__title {
+    font-size: 24px;
+  }
+
+  .prompt-form__textarea {
+    min-height: 180px;
+  }
+}

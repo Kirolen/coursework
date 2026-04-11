@@ -1,0 +1,39 @@
+.validation-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.validation-status-badge__label {
+  font-weight: 700;
+}
+
+.validation-status-badge__value {
+  font-weight: 500;
+}
+
+.validation-status-badge--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.validation-status-badge--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.validation-status-badge--warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+@media (max-width: 640px) {
+  .validation-status-badge {
+    font-size: 13px;
+    padding: 6px 9px;
+  }
+}

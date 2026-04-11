@@ -1,0 +1,43 @@
+.edit-character-page {
+  display: grid;
+  gap: 16px;
+}
+
+.edit-character-page__back {
+  display: flex;
+  align-items: center;
+}
+
+.edit-character-page__back-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.edit-character-page__error-block {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.edit-character-page__error-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.edit-character-page__error-text {
+  margin: 0;
+  color: var(--color-danger);
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .edit-character-page__error-title {
+    font-size: 24px;
+  }
+}

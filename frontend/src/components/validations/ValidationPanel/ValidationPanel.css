@@ -1,0 +1,128 @@
+.validation-panel {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.validation-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.validation-panel__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.validation-panel__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.validation-panel__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.validation-panel__action {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.validation-panel__action:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.validation-panel__action:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.validation-panel__action:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.validation-panel__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.validation-panel__section {
+  display: grid;
+  gap: 10px;
+}
+
+.validation-panel__section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.validation-panel__missing-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.validation-panel__missing-item {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.validation-panel__state {
+  margin: 0;
+  color: var(--color-text-soft);
+}
+
+.validation-panel__error {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  line-height: 1.5;
+}
+
+.validation-panel__footer {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .validation-panel {
+    padding: 20px;
+  }
+
+  .validation-panel__title {
+    font-size: 22px;
+  }
+
+  .validation-panel__action {
+    width: 100%;
+  }
+}
