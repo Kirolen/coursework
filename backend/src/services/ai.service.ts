@@ -33,6 +33,29 @@ export interface AiSemanticValidationResult {
   issues: AiSemanticIssueResult[];
 }
 
+export interface AiCharacterFixSuggestionResult {
+  suggestedCharacter: {
+    inputMode: "builder" | "prompt";
+    rawPrompt: string | null;
+    core: {
+      name: string;
+      age: number | null;
+      description: string;
+      appearance: string;
+      traits: string[];
+    };
+    details: {
+      role: string | null;
+      genres: string[];
+      abilities: string[];
+      motivation: string | null;
+      weaknesses: string[];
+    };
+    additionalAttributes: Record<string, string>;
+  };
+  summary: string[];
+}
+
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -331,4 +354,194 @@ export const generateCharacterImage = async (
   }
 
   return imageBase64;
+};
+
+const buildCharacterFixSuggestionPrompt = (
+  character: unknown,
+  issues: unknown,
+  instruction?: string | null
+): string => {
+  return `
+You are improving an existing fictional character card based on semantic validation issues.
+
+Return only valid JSON matching the required schema.
+
+Rules:
+- Fix semantic issues where possible.
+- Improve weak or inconsistent fields.
+- Preserve the character identity.
+- Preserve the name unless the optional user instruction explicitly asks to change it.
+- Preserve role and genres unless the optional user instruction explicitly asks to change them.
+- Never generate a completely different character.
+- Respect the optional user instruction while still fixing validation issues.
+- Return a complete updated character payload.
+- Keep inputMode and rawPrompt consistent with the original character.
+- Keep arrays as arrays and additionalAttributes as an object.
+
+Current character:
+${JSON.stringify(character, null, 2)}
+
+Semantic validation issues:
+${JSON.stringify(issues, null, 2)}
+
+Optional user instruction:
+${instruction?.trim() ? instruction.trim() : "None"}
+`.trim();
+};
+
+const extractCharacterFixSuggestionFromResponse = (
+  text: string
+): AiCharacterFixSuggestionResult => {
+  const parsed = JSON.parse(text) as AiCharacterFixSuggestionResult;
+  const suggested = parsed.suggestedCharacter;
+
+  return {
+    suggestedCharacter: {
+      inputMode:
+        suggested?.inputMode === "prompt" || suggested?.inputMode === "builder"
+          ? suggested.inputMode
+          : "builder",
+      rawPrompt: suggested?.rawPrompt ?? null,
+      core: {
+        name: suggested?.core?.name ?? "",
+        age: suggested?.core?.age ?? null,
+        description: suggested?.core?.description ?? "",
+        appearance: suggested?.core?.appearance ?? "",
+        traits: Array.isArray(suggested?.core?.traits)
+          ? suggested.core.traits
+          : [],
+      },
+      details: {
+        role: suggested?.details?.role ?? null,
+        genres: Array.isArray(suggested?.details?.genres)
+          ? suggested.details.genres
+          : [],
+        abilities: Array.isArray(suggested?.details?.abilities)
+          ? suggested.details.abilities
+          : [],
+        motivation: suggested?.details?.motivation ?? null,
+        weaknesses: Array.isArray(suggested?.details?.weaknesses)
+          ? suggested.details.weaknesses
+          : [],
+      },
+      additionalAttributes:
+        suggested?.additionalAttributes &&
+        typeof suggested.additionalAttributes === "object" &&
+        !Array.isArray(suggested.additionalAttributes)
+          ? suggested.additionalAttributes
+          : {},
+    },
+    summary: Array.isArray(parsed.summary) ? parsed.summary : [],
+  };
+};
+
+export const generateCharacterFixSuggestion = async (
+  character: unknown,
+  issues: unknown,
+  instruction?: string | null
+): Promise<AiCharacterFixSuggestionResult> => {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY is not defined");
+  }
+
+  const model = process.env.OPENAI_MODEL || "gpt-5.4";
+
+  const response = await client.responses.create({
+    model,
+    input: buildCharacterFixSuggestionPrompt(character, issues, instruction),
+    text: {
+      format: {
+        type: "json_schema",
+        name: "character_fix_suggestion",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            suggestedCharacter: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                inputMode: {
+                  type: "string",
+                  enum: ["builder", "prompt"],
+                },
+                rawPrompt: {
+                  type: ["string", "null"],
+                },
+                core: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    name: { type: "string" },
+                    age: { type: ["number", "null"] },
+                    description: { type: "string" },
+                    appearance: { type: "string" },
+                    traits: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                  },
+                  required: ["name", "age", "description", "appearance", "traits"],
+                },
+                details: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    role: { type: ["string", "null"] },
+                    genres: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                    abilities: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                    motivation: { type: ["string", "null"] },
+                    weaknesses: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                  },
+                  required: [
+                    "role",
+                    "genres",
+                    "abilities",
+                    "motivation",
+                    "weaknesses",
+                  ],
+                },
+                additionalAttributes: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {},
+                  required: [],
+                },
+              },
+              required: [
+                "inputMode",
+                "rawPrompt",
+                "core",
+                "details",
+                "additionalAttributes",
+              ],
+            },
+            summary: {
+              type: "array",
+              items: { type: "string" },
+            },
+          },
+          required: ["suggestedCharacter", "summary"],
+        },
+      },
+    },
+  });
+
+  const outputText = response.output_text;
+
+  if (!outputText) {
+    throw new Error("OpenAI returned empty character fix suggestion output");
+  }
+
+  return extractCharacterFixSuggestionFromResponse(outputText);
 };

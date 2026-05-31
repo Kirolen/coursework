@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { CharacterModel, Character } from "../models/character.model";
+import { GeneratedImageModel } from "../models/generatedImage.model";
 import { calculateCharacterStatus } from "../utils/character-status";
 import { validateCharacter } from "./validation.service";
 
@@ -44,6 +45,15 @@ interface UpdateCharacterInput {
   additionalAttributes?: Record<string, string>;
 }
 
+interface CharacterListImage {
+  _id: Types.ObjectId;
+  characterId: Types.ObjectId;
+  imageUrl: string;
+  promptUsed: string;
+  imageStyle: string | null;
+  createdAt: Date;
+}
+
 export const createCharacter = async (
   data: CreateCharacterInput
 ): Promise<Character> => {
@@ -82,14 +92,40 @@ export const createCharacter = async (
 
 export const getAllCharacters = async (
   userId: string
-): Promise<Character[]> => {
+) => {
   if (!Types.ObjectId.isValid(userId)) {
     return [];
   }
 
-  return CharacterModel.find({
+  const characters = await CharacterModel.find({
     userId: new Types.ObjectId(userId),
   }).sort({ createdAt: -1 });
+
+  const characterIds = characters.map((character) => character._id);
+
+  const successfulImages = await GeneratedImageModel.find({
+    characterId: { $in: characterIds },
+    status: "success",
+  })
+    .select("_id characterId imageUrl promptUsed imageStyle createdAt")
+    .sort({ createdAt: -1 })
+    .lean<CharacterListImage[]>();
+
+  const latestImageByCharacterId = new Map<string, CharacterListImage>();
+
+  for (const image of successfulImages) {
+    const imageCharacterId = String(image.characterId);
+
+    if (!latestImageByCharacterId.has(imageCharacterId)) {
+      latestImageByCharacterId.set(imageCharacterId, image);
+    }
+  }
+
+  return characters.map((character) => ({
+    ...character.toObject(),
+    latestSuccessfulImage:
+      latestImageByCharacterId.get(String(character._id)) ?? null,
+  }));
 };
 
 export const getCharacterById = async (

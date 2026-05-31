@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 const inputModeSchema = z.enum(["builder", "prompt"]);
+const imageStyleSchema = z
+  .enum(["anime", "realistic", "dark_fantasy", "cinematic", "watercolor"])
+  .nullable()
+  .optional();
 
 const coreSchema = z.object({
   name: z.string().trim().min(1, "core.name is required"),
@@ -82,8 +86,28 @@ export const createCharacterFromPromptSchema = z.object({
   prompt: z.string().trim().min(10, "prompt must contain at least 10 characters"),
 });
 
+export const generateCharacterImageSchema = z
+  .object({
+    imageStyle: imageStyleSchema,
+  })
+  .optional()
+  .transform((data) => data ?? {});
+
+export const suggestCharacterFixesSchema = z
+  .object({
+    instruction: z.string().trim().min(1).optional(),
+  })
+  .optional()
+  .transform((data) => data ?? {});
+
 export type CreateCharacterDto = z.infer<typeof createCharacterSchema>;
 export type UpdateCharacterDto = z.infer<typeof updateCharacterSchema>;
 export type CreateCharacterFromPromptDto = z.infer<
   typeof createCharacterFromPromptSchema
+>;
+export type GenerateCharacterImageDto = z.infer<
+  typeof generateCharacterImageSchema
+>;
+export type SuggestCharacterFixesDto = z.infer<
+  typeof suggestCharacterFixesSchema
 >;

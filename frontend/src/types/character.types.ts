@@ -1,3 +1,5 @@
+import type { LatestSuccessfulGeneratedImage } from "./image.types";
+
 export type CharacterInputMode = "builder" | "prompt";
 export type CharacterStatus = "draft" | "partial" | "complete" | "validated";
 
@@ -26,6 +28,7 @@ export interface Character {
   core: CharacterCore;
   details: CharacterDetails;
   additionalAttributes: Record<string, string>;
+  latestSuccessfulImage?: LatestSuccessfulGeneratedImage | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,4 +75,21 @@ export interface UpdateCharacterPayload {
 
 export interface CreateCharacterFromPromptPayload {
   prompt: string;
+}
+
+export interface SuggestedCharacterPayload {
+  inputMode: CharacterInputMode;
+  rawPrompt: string | null;
+  core: CharacterCore;
+  details: CharacterDetails;
+  additionalAttributes: Record<string, string>;
+}
+
+export interface SuggestCharacterFixesPayload {
+  instruction?: string;
+}
+
+export interface SuggestCharacterFixesResponse {
+  suggestedCharacter: SuggestedCharacterPayload;
+  summary: string[];
 }

@@ -1,6 +1,18 @@
 import { Character } from "../models/character.model";
+import { GeneratedImageStyle } from "../models/generatedImage.model";
 
-export const buildCharacterImagePrompt = (character: Character): string => {
+const stylePromptText: Record<GeneratedImageStyle, string> = {
+  anime: "anime illustration style",
+  realistic: "realistic digital portrait style",
+  dark_fantasy: "dark fantasy art style",
+  cinematic: "cinematic concept art style",
+  watercolor: "watercolor painting style",
+};
+
+export const buildCharacterImagePrompt = (
+  character: Character,
+  imageStyle: GeneratedImageStyle | null = null
+): string => {
   const traitsText = character.core.traits.length
     ? character.core.traits.join(", ")
     : "undefined traits";
@@ -33,11 +45,12 @@ Motivation: ${character.details.motivation ?? "undefined"}
 
 Requirements:
 - single character portrait
+- generate exactly one image
 - visually coherent design
+- ${imageStyle ? `use ${stylePromptText[imageStyle]}` : "style should match the character genre"}
 - cinematic lighting
 - detailed face and clothing
 - no text on image
 - no watermark
-- style should match the character genre
 `.trim();
 };

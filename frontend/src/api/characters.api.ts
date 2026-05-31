@@ -4,6 +4,8 @@ import type {
   CreateCharacterPayload,
   CreateCharacterFromPromptPayload,
   UpdateCharacterPayload,
+  SuggestCharacterFixesPayload,
+  SuggestCharacterFixesResponse,
 } from "../types/character.types";
 
 export const charactersApi = {
@@ -34,6 +36,18 @@ export const charactersApi = {
 
   async update(id: string, payload: UpdateCharacterPayload): Promise<Character> {
     const response = await apiClient.patch<Character>(`/characters/${id}`, payload);
+    return response.data;
+  },
+
+  async suggestFixes(
+    id: string,
+    payload: SuggestCharacterFixesPayload = {}
+  ): Promise<SuggestCharacterFixesResponse> {
+    const response = await apiClient.post<SuggestCharacterFixesResponse>(
+      `/characters/${id}/suggest-fixes`,
+      payload
+    );
+
     return response.data;
   },
 

@@ -3,13 +3,37 @@ import { Link } from "react-router-dom";
 import { charactersApi } from "../../api/characters.api";
 import CharacterCard from "../../components/characters/CharacterCard/CharacterCard";
 import Loader from "../../components/common/Loader/Loader";
-import type { Character } from "../../types/character.types";
+import type { Character, CharacterStatus } from "../../types/character.types";
 import "./CharactersPage.css";
+
+type CharacterStatusFilter = CharacterStatus | "all";
+
+const statusFilterOptions: CharacterStatusFilter[] = [
+  "all",
+  "draft",
+  "partial",
+  "complete",
+  "validated",
+];
 
 function CharactersPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] =
+    useState<CharacterStatusFilter>("all");
+
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredCharacters = characters.filter((character) => {
+    const matchesSearch = character.core.name
+      .toLowerCase()
+      .includes(normalizedSearchQuery);
+    const matchesStatus =
+      statusFilter === "all" || character.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
     const fetchCharacters = async () => {
@@ -101,11 +125,51 @@ function CharactersPage() {
           </Link>
         </div>
       ) : (
-        <div className="characters-page__grid">
-          {characters.map((character) => (
-            <CharacterCard key={character._id} character={character} />
-          ))}
-        </div>
+        <>
+          <div className="characters-page__filters">
+            <label className="characters-page__filter">
+              <span className="characters-page__filter-label">Search</span>
+              <input
+                className="characters-page__search"
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search by name"
+              />
+            </label>
+
+            <label className="characters-page__filter">
+              <span className="characters-page__filter-label">Status</span>
+              <select
+                className="characters-page__select"
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as CharacterStatusFilter)
+                }
+              >
+                {statusFilterOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {filteredCharacters.length === 0 ? (
+            <div className="characters-page__empty">
+              <p className="characters-page__empty-text">
+                No characters match your filters.
+              </p>
+            </div>
+          ) : (
+            <div className="characters-page__grid">
+              {filteredCharacters.map((character) => (
+                <CharacterCard key={character._id} character={character} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -2,7 +2,10 @@ import { promises as fs } from "fs";
 import path from "path";
 import { Types } from "mongoose";
 import { CharacterModel } from "../models/character.model";
-import { GeneratedImageModel } from "../models/generatedImage.model";
+import {
+  GeneratedImageModel,
+  GeneratedImageStyle,
+} from "../models/generatedImage.model";
 import { buildCharacterImagePrompt } from "../utils/image-prompt";
 import { generateCharacterImage } from "./ai.service";
 
@@ -14,7 +17,8 @@ const ensureGeneratedImagesDir = async (): Promise<void> => {
 
 export const generateImageForCharacter = async (
   characterId: string,
-  userId: string
+  userId: string,
+  imageStyle: GeneratedImageStyle | null = null
 ) => {
   if (!Types.ObjectId.isValid(characterId) || !Types.ObjectId.isValid(userId)) {
     return null;
@@ -29,13 +33,14 @@ export const generateImageForCharacter = async (
     return null;
   }
 
-  const promptUsed = buildCharacterImagePrompt(character);
+  const promptUsed = buildCharacterImagePrompt(character, imageStyle);
 
   const pendingRecord = await GeneratedImageModel.create({
     characterId: character._id,
     promptUsed,
     imageUrl: "pending",
     status: "pending",
+    imageStyle,
     errorMessage: null,
   });
 

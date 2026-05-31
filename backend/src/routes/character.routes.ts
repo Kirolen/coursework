@@ -11,6 +11,7 @@ import {
   getLatestCharacterValidationController,
   generateCharacterImageController,
   getCharacterImagesController,
+  suggestCharacterFixesController,
 } from "../controllers/character.controller";
 import { validateBody } from "../middlewares/validate.middleware";
 import { authMiddleware } from "../middlewares/auth.middleware";
@@ -18,6 +19,8 @@ import {
   createCharacterSchema,
   createCharacterFromPromptSchema,
   updateCharacterSchema,
+  generateCharacterImageSchema,
+  suggestCharacterFixesSchema,
 } from "../validators/character.validator";
 
 const router = Router();
@@ -40,6 +43,15 @@ router.get("/:id/images", getCharacterImagesController);
 router.patch("/:id", validateBody(updateCharacterSchema), updateCharacterController);
 router.delete("/:id", deleteCharacterController);
 router.post("/:id/semantic-validate", semanticValidateCharacterController);
-router.post("/:id/generate-image", generateCharacterImageController);
+router.post(
+  "/:id/suggest-fixes",
+  validateBody(suggestCharacterFixesSchema),
+  suggestCharacterFixesController
+);
+router.post(
+  "/:id/generate-image",
+  validateBody(generateCharacterImageSchema),
+  generateCharacterImageController
+);
 
 export default router;

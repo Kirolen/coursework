@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 18px;
+  overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -18,6 +18,34 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+}
+
+.character-card__cover,
+.character-card__cover-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  display: block;
+  background: var(--color-surface-muted);
+}
+
+.character-card__cover {
+  object-fit: cover;
+}
+
+.character-card__cover-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.character-card__header,
+.character-card__description,
+.character-card__traits,
+.character-card__footer {
+  margin-left: 18px;
+  margin-right: 18px;
 }
 
 .character-card__header {
@@ -79,6 +107,7 @@
 .character-card__footer {
   margin-top: auto;
   padding-top: 4px;
+  padding-bottom: 18px;
 }
 
 .character-card__link {
@@ -89,10 +118,22 @@
 
 @media (max-width: 640px) {
   .character-card {
-    padding: 16px;
+    gap: 12px;
   }
 
   .character-card__title {
     font-size: 20px;
+  }
+
+  .character-card__header,
+  .character-card__description,
+  .character-card__traits,
+  .character-card__footer {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .character-card__footer {
+    padding-bottom: 16px;
   }
 }

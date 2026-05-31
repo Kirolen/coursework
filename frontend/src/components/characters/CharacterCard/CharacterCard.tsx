@@ -7,8 +7,28 @@ interface CharacterCardProps {
 }
 
 function CharacterCard({ character }: CharacterCardProps) {
+  const coverImage = character.latestSuccessfulImage;
+  const coverImageUrl = coverImage
+    ? coverImage.imageUrl.startsWith("http")
+      ? coverImage.imageUrl
+      : `http://localhost:5000${coverImage.imageUrl}`
+    : null;
+
   return (
     <article className="character-card">
+      {coverImageUrl ? (
+        <img
+          src={coverImageUrl}
+          alt={`${character.core.name} generated portrait`}
+          className="character-card__cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="character-card__cover-placeholder">
+          <span>No image yet</span>
+        </div>
+      )}
+
       <div className="character-card__header">
         <h3 className="character-card__title">{character.core.name}</h3>
 

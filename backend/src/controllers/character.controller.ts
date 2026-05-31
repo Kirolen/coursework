@@ -16,6 +16,7 @@ import {
   generateImageForCharacter,
   getImagesForCharacter,
 } from "../services/generated-image.service";
+import { suggestCharacterFixes } from "../services/character-fix-suggestion.service";
 import { asyncHandler } from "../utils/async-handler";
 import { AppError } from "../utils/app-error";
 
@@ -176,7 +177,11 @@ export const generateCharacterImageController = asyncHandler(
     }
 
     const id = String(req.params.id);
-    const image = await generateImageForCharacter(id, req.user.id);
+    const image = await generateImageForCharacter(
+      id,
+      req.user.id,
+      req.body.imageStyle ?? null
+    );
 
     if (!image) {
       throw new AppError("Character not found", 404);
@@ -200,5 +205,33 @@ export const getCharacterImagesController = asyncHandler(
     }
 
     res.status(200).json(images);
+  }
+);
+
+export const suggestCharacterFixesController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const id = String(req.params.id);
+    const result = await suggestCharacterFixes({
+      characterId: id,
+      userId: req.user.id,
+      instruction: req.body.instruction ?? null,
+    });
+
+    if (result.status === "character_not_found") {
+      throw new AppError("Character not found", 404);
+    }
+
+    if (result.status === "validation_not_found") {
+      throw new AppError(
+        "No validation found. Run semantic validation before requesting AI fixes.",
+        400
+      );
+    }
+
+    res.status(200).json(result.data);
   }
 );
